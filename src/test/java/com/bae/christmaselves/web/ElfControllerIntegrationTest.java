@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc // sets up the mockmvc object
 @Sql(scripts = {"classpath:elf-schema.sql", "classpath:elf-data.sql"}, executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+@ActiveProfiles("test")
 public class ElfControllerIntegrationTest {
 	
 	@Autowired
@@ -46,7 +48,7 @@ public class ElfControllerIntegrationTest {
 		RequestBuilder req = post("/createElf").contentType(MediaType.APPLICATION_JSON)
 				.content(testElfAsJSON);
 		
-		ChristmasElf testCreatedElf = new ChristmasElf(2, "Happy", 123, 0.5, "candy", "train", true);
+		ChristmasElf testCreatedElf = new ChristmasElf(4, "Happy", 123, 0.5, "candy", "train", true);
 		String testCreatedElfAsJSON = this.mapper.writeValueAsString(testCreatedElf);
 		ResultMatcher checkStatus = status().isCreated();
 		ResultMatcher checkBody = content().json(testCreatedElfAsJSON);
@@ -55,9 +57,11 @@ public class ElfControllerIntegrationTest {
 	}
 	
 	@Test
-	void testGetAll() throws Exception {
-		ChristmasElf testElf = new ChristmasElf(1, "Happy", 123, 0.5, "candy", "train", true);
-		String testElfAsJSON = this.mapper.writeValueAsString(List.of(testElf));
+	void testGetAll() throws Exception { 
+		List<ChristmasElf> testElf = List.of(new ChristmasElf(1, "Happy", 123, 0.5, "candy", "train", true), 
+				new ChristmasElf(2, "Skippy", 56, 0.5, "caramel", "skipping rope", true), 
+				new ChristmasElf(3, "Smiley", 322, 0.5, "sausages", "pencils", true));
+		String testElfAsJSON = this.mapper.writeValueAsString(testElf);
 		
 		RequestBuilder req = get("/getAll");
 		
@@ -66,6 +70,8 @@ public class ElfControllerIntegrationTest {
 		
 		this.mvc.perform(req).andExpect(checkStatus).andExpect(checkBody);
 	}
+	
+	
 	
 	@Test
 	void testGetElfById() throws Exception {
@@ -86,12 +92,15 @@ public class ElfControllerIntegrationTest {
 		ChristmasElf testElf = new ChristmasElf(1, "Happy", 123, 0.5, "candy", "train", true);
 		String testElfAsJSON = this.mapper.writeValueAsString(testElf);
 		
+		
 		RequestBuilder req = get("/getElfByName/Happy");
 		
 		ResultMatcher checkStatus = status().isOk();
 		ResultMatcher checkBody = content().json(testElfAsJSON);
 		
 		this.mvc.perform(req).andExpect(checkStatus).andExpect(checkBody);
+		this.mvc.perform(req).andExpect(checkStatus).andExpect(checkBody);
+		// id ther
 		
 	}
 	

@@ -30,6 +30,14 @@ public class ChristmasPresents {
 		this.colour = colour;
 
 	}
+	
+	public ChristmasPresents(String type, Integer numNeeded, String colour) {
+		super();
+		this.type = type;
+		this.numNeeded = numNeeded;
+		this.colour = colour;
+
+	}
 
 	public ChristmasPresents() {
 		super();
